@@ -1,27 +1,25 @@
 import React from "react";
-import "fontsource-roboto";
 // import logo from "./logo.svg";
 import "./App.scss";
-import Navigator from "./components/Navigator/Navigator";
+import NavigatorDrawer from "./components/NavigationDrawer/NavigationDrawer";
+import Navbar from "./components/NavigationBar/NavigationBar";
+import Page from "./components/Page/Page";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 function App() {
   return (
     <div className="App">
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-      <Navigator />
+      <Container fluid style={{ height: "100vh" }}>
+        <Row style={{ height: "100%" }}>
+          <NavigatorDrawer />
+          <Col style={{ padding: 0 }}>
+            <Navbar></Navbar>
+            <Page></Page>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 }
