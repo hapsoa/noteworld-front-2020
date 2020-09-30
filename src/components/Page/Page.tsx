@@ -5,7 +5,15 @@ import "./Page.scss";
 
 class NavigationBar extends React.Component {
   render() {
-    return <div>Page</div>;
+    return (
+      <div className="Page">
+        <img
+          src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
+          alt=""
+          style={{ height: "200px", objectFit: "cover" }}
+        />
+      </div>
+    );
   }
 }
 
