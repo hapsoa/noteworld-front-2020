@@ -1,0 +1,15 @@
+.PageView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .page-component {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: underline;
+    &:hover {
+      background-color: #efefef;
+    }
+  }
+}

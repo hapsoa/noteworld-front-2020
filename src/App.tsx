@@ -3,7 +3,7 @@ import React from "react";
 import "./App.scss";
 import NavigatorDrawer from "./components/NavigationDrawer/NavigationDrawer";
 import Navbar from "./components/NavigationBar/NavigationBar";
-import Page from "./components/Page/Page";
+import Page from "./components/PageView/PageView";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
