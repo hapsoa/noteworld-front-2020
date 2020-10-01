@@ -10,6 +10,7 @@ import TextBlock from "../../classes/TextBlock";
 
 interface ContentBlockElementListProps {
   contentBlocks: ContentBlock[];
+  newTextBlockId: string;
 
   enterTextBlock(
     currentTextBlockId: string,
@@ -21,9 +22,13 @@ interface ContentBlockElementListProps {
 class ContentBlockElementList extends React.Component<
   ContentBlockElementListProps
 > {
+  private newTextBlockRef: React.RefObject<HTMLDivElement>;
+  private eventKey: string = "";
+
   constructor(props: ContentBlockElementListProps) {
     super(props);
     this.state = {};
+    this.newTextBlockRef = React.createRef();
   }
 
   render() {
@@ -32,32 +37,49 @@ class ContentBlockElementList extends React.Component<
         contentEditable={true}
         className="text-component"
         style={{ flex: 2, border: "none" }}
-        // placeholder="Type '/' for commands"
         placeholder={
           (contentBlock as TextBlock).isFocus ? "Type '/' for commands" : ""
         }
         key={contentBlock.id}
-        onKeyUp={(event) => this.props.enterTextBlock(contentBlock.id, event)}
         onFocus={() => {
-          console.log("focus");
           (contentBlock as TextBlock).isFocus = true;
           this.props.handleFocusBlur();
         }}
         onBlur={() => {
-          console.log("onBlur");
           (contentBlock as TextBlock).isFocus = false;
           this.props.handleFocusBlur();
+        }}
+        ref={
+          this.props.newTextBlockId === contentBlock.id
+            ? this.newTextBlockRef
+            : null
+        }
+        onKeyPress={(event) => {
+          this.eventKey = event.key;
+          this.props.enterTextBlock(contentBlock.id, event);
         }}
       ></div>
     ));
 
     return <div>{divElements}</div>;
   }
+
+  componentDidUpdate() {
+    // focus on the new TextComponent
+    if (this.newTextBlockRef.current && this.eventKey === "Enter") {
+      this.newTextBlockRef.current.focus();
+      this.eventKey = "";
+    }
+  }
 }
 
 class PageView extends React.Component<
   {},
-  { pageBlock: PageBlock; contentBlockJsxElements: ReactElement[] }
+  {
+    pageBlock: PageBlock;
+    contentBlockJsxElements: ReactElement[];
+    newTextBlock: TextBlock;
+  }
 > {
   constructor(props: {}) {
     super(props);
@@ -81,7 +103,11 @@ class PageView extends React.Component<
       }
     );
 
-    this.state = { pageBlock: pageBlock, contentBlockJsxElements };
+    this.state = {
+      pageBlock,
+      contentBlockJsxElements,
+      newTextBlock: new TextBlock(),
+    };
 
     this.enterTextBlock = this.enterTextBlock.bind(this);
     this.handleFocusBlur = this.handleFocusBlur.bind(this);
@@ -92,9 +118,8 @@ class PageView extends React.Component<
     event: KeyboardEvent<HTMLDivElement>
   ) {
     if (event.key === "Enter") {
-      console.log("success enter");
       // dont' apply enter at the current div.
-      // contentBlockJsxElements[0];
+      event.preventDefault();
 
       // find the current index
       const currentIndex = this.state.pageBlock.contentBlockIds.indexOf(
@@ -113,9 +138,10 @@ class PageView extends React.Component<
         .getContentBlocks()
         .splice(currentIndex + 1, 0, newTextBlock);
 
-      this.setState({ pageBlock: this.state.pageBlock });
-
-      // focus on the new TextComponent
+      this.setState({
+        pageBlock: this.state.pageBlock,
+        newTextBlock,
+      });
     }
   }
 
@@ -154,6 +180,7 @@ class PageView extends React.Component<
               contentBlocks={contentBlocks}
               enterTextBlock={this.enterTextBlock}
               handleFocusBlur={this.handleFocusBlur}
+              newTextBlockId={this.state.newTextBlock.id}
             />
           </div>
           <div style={{ flex: 2 }}></div>

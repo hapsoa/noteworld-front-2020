@@ -10,7 +10,7 @@ class PageHistory extends React.Component {
           <GiClover style={{ color: "green" }} />
           <div style={{ lineHeight: "40px" }}>page name</div>
         </div>
-        <div style={{ margin: "0 4px", lineHeight: "40px" }}>-+</div>
+        <div style={{ margin: "0 4px", lineHeight: "40px" }}> / </div>
         <div style={{ display: "flex", alignItems: "center" }}>
           <GiClover style={{ color: "green" }} />
           <div style={{ lineHeight: "40px" }}>page name</div>

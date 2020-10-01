@@ -14,7 +14,9 @@
   }
 
   .text-component {
-    height: 24px;
+    min-height: 28px;
+    line-height: 28px;
+    margin: 2px 0;
     outline: none;
     &:hover {
       background-color: #efefef;
