@@ -1,8 +1,14 @@
 import ContentBlockInterface from "../interfaces/ContentBlockInterface";
+import { v4 as uuidv4 } from "uuid";
 
 abstract class ContentBlock implements ContentBlockInterface {
-  id: string = "";
-  keyword: string = "";
+  public id: string = "";
+  public keyword: string = "";
+
+  constructor() {
+    this.id = uuidv4();
+  }
+
   delete(): void {
     throw new Error("Method not implemented.");
   }

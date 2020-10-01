@@ -1,41 +1,52 @@
+/* eslint-disable no-unused-vars */
 import React, { KeyboardEvent, ReactElement } from "react";
 import "./PageView.scss";
 import { HiOutlineDocument } from "react-icons/hi";
 import PageBlock from "../../classes/PageBlock";
 import _ from "lodash";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
+import ContentBlock from "../../classes/ContentBlock";
+import TextBlock from "../../classes/TextBlock";
 
-interface TextListProps {
-  contentBlockIds: string[];
+interface ContentBlockElementListProps {
+  contentBlocks: ContentBlock[];
 
   enterTextBlock(
-    // eslint-disable-next-line no-unused-vars
     currentTextBlockId: string,
-    // eslint-disable-next-line no-unused-vars
     event: KeyboardEvent<HTMLDivElement>
   ): void;
+  handleFocusBlur(): void;
 }
 
-class TextElementList extends React.Component<TextListProps> {
-  constructor(props: TextListProps) {
+class ContentBlockElementList extends React.Component<
+  ContentBlockElementListProps
+> {
+  constructor(props: ContentBlockElementListProps) {
     super(props);
     this.state = {};
   }
 
   render() {
-    const divElements = _.map(this.props.contentBlockIds, (blockId) => (
+    const divElements = _.map(this.props.contentBlocks, (contentBlock) => (
       <div
         contentEditable={true}
         className="text-component"
         style={{ flex: 2, border: "none" }}
-        placeholder="Type '/' for commands"
-        key={blockId}
-        onKeyUp={(event) => this.props.enterTextBlock(blockId, event)}
+        // placeholder="Type '/' for commands"
+        placeholder={
+          (contentBlock as TextBlock).isFocus ? "Type '/' for commands" : ""
+        }
+        key={contentBlock.id}
+        onKeyUp={(event) => this.props.enterTextBlock(contentBlock.id, event)}
         onFocus={() => {
           console.log("focus");
+          (contentBlock as TextBlock).isFocus = true;
+          this.props.handleFocusBlur();
         }}
         onBlur={() => {
           console.log("onBlur");
+          (contentBlock as TextBlock).isFocus = false;
+          this.props.handleFocusBlur();
         }}
       ></div>
     ));
@@ -73,14 +84,13 @@ class PageView extends React.Component<
     this.state = { pageBlock: pageBlock, contentBlockJsxElements };
 
     this.enterTextBlock = this.enterTextBlock.bind(this);
+    this.handleFocusBlur = this.handleFocusBlur.bind(this);
   }
 
   enterTextBlock(
     currentTextBlockId: string,
     event: KeyboardEvent<HTMLDivElement>
   ) {
-    console.log("enterBlock()", event.key);
-
     if (event.key === "Enter") {
       console.log("success enter");
       // dont' apply enter at the current div.
@@ -91,12 +101,17 @@ class PageView extends React.Component<
         currentTextBlockId
       );
 
-      // make new TextComponent
+      // make new TextBlock
+      const newTextBlock = new TextBlock();
+
       this.state.pageBlock.contentBlockIds.splice(
         currentIndex + 1,
         0,
-        uuidv4()
+        newTextBlock.id
       );
+      this.state.pageBlock
+        .getContentBlocks()
+        .splice(currentIndex + 1, 0, newTextBlock);
 
       this.setState({ pageBlock: this.state.pageBlock });
 
@@ -104,7 +119,13 @@ class PageView extends React.Component<
     }
   }
 
+  handleFocusBlur() {
+    this.setState({ pageBlock: this.state.pageBlock });
+  }
+
   render() {
+    const contentBlocks = this.state.pageBlock.getContentBlocks();
+
     return (
       <div className="PageView">
         <img
@@ -129,9 +150,10 @@ class PageView extends React.Component<
               <HiOutlineDocument />
               <div>PageComponent</div>
             </div>
-            <TextElementList
-              contentBlockIds={this.state.pageBlock.contentBlockIds}
+            <ContentBlockElementList
+              contentBlocks={contentBlocks}
               enterTextBlock={this.enterTextBlock}
+              handleFocusBlur={this.handleFocusBlur}
             />
           </div>
           <div style={{ flex: 2 }}></div>
