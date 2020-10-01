@@ -12,4 +12,15 @@
       background-color: #efefef;
     }
   }
+
+  .text-component {
+    outline: none;
+    &:hover {
+      background-color: #efefef;
+    }
+    &:empty:before {
+      content: attr(placeholder);
+      color: #cccccc;
+    }
+  }
 }

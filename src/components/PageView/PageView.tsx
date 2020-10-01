@@ -1,35 +1,114 @@
-import React from "react";
+import React, { KeyboardEvent, ReactElement } from "react";
 import "./PageView.scss";
 import { HiOutlineDocument } from "react-icons/hi";
 import Page from "../../classes/Page";
 import _ from "lodash";
+import { v4 as uuidv4 } from "uuid";
 
-// I want to insert page class instance in the PageView.
-const page: Page = new Page();
-page.contentBlocks.push("content-block-id-1");
-page.contentBlocks.push("content-block-id-2");
+// const contentBlockJsxElements: ReactElement<any, "div">[] = _.map(
+//   page.contentBlockIds,
+//   (blockId) => {
+//     return (
+//       <div
+//         key={blockId}
+//         style={{
+//           margin: "4px 0",
+//         }}
+//       >
+//         {blockId}
+//       </div>
+//     );
+//   }
+// );
 
-// const contentBlocksss = page.contentBlocks.map((blockId) => {
-//   return <div key={blockId}>{blockId}</div>;
-// });
+// function enterTextBlock(event: KeyboardEvent<HTMLDivElement>) {
+//   console.log("enterBlock()", event.key);
 
-const contentBlockJsxElements = _.map(page.contentBlocks, (blockId) => {
-  return (
-    <div
-      key={blockId}
-      style={{
-        margin: "4px 0",
-      }}
-    >
-      {blockId}
-    </div>
-  );
-});
+//   if (event.key === "Enter") {
+//     console.log("success enter");
+//     // dont' apply enter at the current div.
+//     contentBlockJsxElements[0];
 
-class PageView extends React.Component {
-  constructor(props: React.Component<{}, {}>) {
+//     // make new TextComponent
+//     page.contentBlockIds.push("content-block-id-3");
+
+//     // focus on the new TextComponent
+//   }
+// }
+
+interface TextListProps {
+  contentBlockIds: string[];
+  // eslint-disable-next-line no-unused-vars
+  enterTextBlock(event: KeyboardEvent<HTMLDivElement>): void;
+}
+
+class TextElementList extends React.Component<TextListProps> {
+  constructor(props: TextListProps) {
     super(props);
-    this.state = { asdf: "asdf" };
+  }
+
+  render() {
+    const divElements = _.map(this.props.contentBlockIds, (blockId) => (
+      // <div key={blockId}>{blockId}</div>
+      <div
+        contentEditable={true}
+        className="text-component"
+        style={{ flex: 2, border: "none" }}
+        placeholder="Type '/' for commands"
+        key={blockId}
+        onKeyUp={this.props.enterTextBlock}
+      ></div>
+    ));
+
+    return <div>{divElements}</div>;
+  }
+}
+
+class PageView extends React.Component<
+  {},
+  { page: Page; contentBlockJsxElements: ReactElement[] }
+> {
+  constructor(props: {}) {
+    super(props);
+
+    // I want to insert page class instance in the PageView.
+    const page: Page = new Page();
+
+    const contentBlockJsxElements: ReactElement[] = _.map(
+      page.contentBlockIds,
+      (blockId) => {
+        return (
+          <div
+            key={blockId}
+            style={{
+              margin: "4px 0",
+            }}
+          >
+            {blockId}
+          </div>
+        );
+      }
+    );
+
+    this.state = { page, contentBlockJsxElements };
+
+    this.enterTextBlock = this.enterTextBlock.bind(this);
+  }
+
+  enterTextBlock(event: KeyboardEvent<HTMLDivElement>) {
+    console.log("enterBlock()", event.key);
+
+    if (event.key === "Enter") {
+      console.log("success enter");
+      // dont' apply enter at the current div.
+      // contentBlockJsxElements[0];
+
+      // make new TextComponent
+      this.state.page.contentBlockIds.push(uuidv4());
+      this.setState({ page: this.state.page });
+
+      // focus on the new TextComponent
+    }
   }
 
   render() {
@@ -57,14 +136,19 @@ class PageView extends React.Component {
               <HiOutlineDocument />
               <div>PageComponent</div>
             </div>
-            {/* <div
-              style={{
-                margin: "4px 0",
+            <div
+              contentEditable={true}
+              className="text-component"
+              style={{ flex: 2, border: "none" }}
+              placeholder="Type '/' for commands"
+              onKeyUp={(event) => {
+                this.enterTextBlock(event);
               }}
-            >
-              {page.contentBlocks}
-            </div> */}
-            {contentBlockJsxElements}
+            ></div>
+            <TextElementList
+              contentBlockIds={this.state.page.contentBlockIds}
+              enterTextBlock={this.enterTextBlock}
+            />
           </div>
           <div style={{ flex: 2 }}></div>
         </div>

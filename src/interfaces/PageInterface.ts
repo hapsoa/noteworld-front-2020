@@ -1,6 +1,6 @@
 interface PageInterface {
   title: string;
-  contentBlocks: string[];
+  contentBlockIds: string[];
 }
 
 export default PageInterface;
