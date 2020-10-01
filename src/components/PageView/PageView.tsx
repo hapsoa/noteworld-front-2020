@@ -1,62 +1,42 @@
 import React, { KeyboardEvent, ReactElement } from "react";
 import "./PageView.scss";
 import { HiOutlineDocument } from "react-icons/hi";
-import Page from "../../classes/Page";
+import PageBlock from "../../classes/PageBlock";
 import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
 
-// const contentBlockJsxElements: ReactElement<any, "div">[] = _.map(
-//   page.contentBlockIds,
-//   (blockId) => {
-//     return (
-//       <div
-//         key={blockId}
-//         style={{
-//           margin: "4px 0",
-//         }}
-//       >
-//         {blockId}
-//       </div>
-//     );
-//   }
-// );
-
-// function enterTextBlock(event: KeyboardEvent<HTMLDivElement>) {
-//   console.log("enterBlock()", event.key);
-
-//   if (event.key === "Enter") {
-//     console.log("success enter");
-//     // dont' apply enter at the current div.
-//     contentBlockJsxElements[0];
-
-//     // make new TextComponent
-//     page.contentBlockIds.push("content-block-id-3");
-
-//     // focus on the new TextComponent
-//   }
-// }
-
 interface TextListProps {
   contentBlockIds: string[];
-  // eslint-disable-next-line no-unused-vars
-  enterTextBlock(event: KeyboardEvent<HTMLDivElement>): void;
+
+  enterTextBlock(
+    // eslint-disable-next-line no-unused-vars
+    currentTextBlockId: string,
+    // eslint-disable-next-line no-unused-vars
+    event: KeyboardEvent<HTMLDivElement>
+  ): void;
 }
 
 class TextElementList extends React.Component<TextListProps> {
   constructor(props: TextListProps) {
     super(props);
+    this.state = {};
   }
 
   render() {
     const divElements = _.map(this.props.contentBlockIds, (blockId) => (
-      // <div key={blockId}>{blockId}</div>
       <div
         contentEditable={true}
         className="text-component"
         style={{ flex: 2, border: "none" }}
         placeholder="Type '/' for commands"
         key={blockId}
-        onKeyUp={this.props.enterTextBlock}
+        onKeyUp={(event) => this.props.enterTextBlock(blockId, event)}
+        onFocus={() => {
+          console.log("focus");
+        }}
+        onBlur={() => {
+          console.log("onBlur");
+        }}
       ></div>
     ));
 
@@ -66,16 +46,16 @@ class TextElementList extends React.Component<TextListProps> {
 
 class PageView extends React.Component<
   {},
-  { page: Page; contentBlockJsxElements: ReactElement[] }
+  { pageBlock: PageBlock; contentBlockJsxElements: ReactElement[] }
 > {
   constructor(props: {}) {
     super(props);
 
     // I want to insert page class instance in the PageView.
-    const page: Page = new Page();
+    const pageBlock: PageBlock = new PageBlock();
 
     const contentBlockJsxElements: ReactElement[] = _.map(
-      page.contentBlockIds,
+      pageBlock.contentBlockIds,
       (blockId) => {
         return (
           <div
@@ -90,12 +70,15 @@ class PageView extends React.Component<
       }
     );
 
-    this.state = { page, contentBlockJsxElements };
+    this.state = { pageBlock: pageBlock, contentBlockJsxElements };
 
     this.enterTextBlock = this.enterTextBlock.bind(this);
   }
 
-  enterTextBlock(event: KeyboardEvent<HTMLDivElement>) {
+  enterTextBlock(
+    currentTextBlockId: string,
+    event: KeyboardEvent<HTMLDivElement>
+  ) {
     console.log("enterBlock()", event.key);
 
     if (event.key === "Enter") {
@@ -103,9 +86,19 @@ class PageView extends React.Component<
       // dont' apply enter at the current div.
       // contentBlockJsxElements[0];
 
+      // find the current index
+      const currentIndex = this.state.pageBlock.contentBlockIds.indexOf(
+        currentTextBlockId
+      );
+
       // make new TextComponent
-      this.state.page.contentBlockIds.push(uuidv4());
-      this.setState({ page: this.state.page });
+      this.state.pageBlock.contentBlockIds.splice(
+        currentIndex + 1,
+        0,
+        uuidv4()
+      );
+
+      this.setState({ pageBlock: this.state.pageBlock });
 
       // focus on the new TextComponent
     }
@@ -136,17 +129,8 @@ class PageView extends React.Component<
               <HiOutlineDocument />
               <div>PageComponent</div>
             </div>
-            <div
-              contentEditable={true}
-              className="text-component"
-              style={{ flex: 2, border: "none" }}
-              placeholder="Type '/' for commands"
-              onKeyUp={(event) => {
-                this.enterTextBlock(event);
-              }}
-            ></div>
             <TextElementList
-              contentBlockIds={this.state.page.contentBlockIds}
+              contentBlockIds={this.state.pageBlock.contentBlockIds}
               enterTextBlock={this.enterTextBlock}
             />
           </div>

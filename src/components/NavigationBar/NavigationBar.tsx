@@ -8,7 +8,9 @@ class NavigationBar extends React.Component {
       <div className="NavigationBar">
         <PageHistory />
         <div style={{ flex: 1 }}></div>
-        <div>Favorite</div>
+        <div style={{ lineHeight: "40px", margin: "0 8px", fontSize: "16px" }}>
+          Favorite
+        </div>
       </div>
     );
   }
