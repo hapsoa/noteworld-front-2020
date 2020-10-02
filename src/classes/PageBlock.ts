@@ -26,6 +26,10 @@ class PageBlock extends ContentBlock implements PageBlockInterface {
       return this.contentBlocks;
     }
   }
+
+  public save(): void {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export default PageBlock;

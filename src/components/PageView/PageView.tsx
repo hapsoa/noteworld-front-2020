@@ -34,14 +34,16 @@ class PageView extends React.Component<
   }
 
   pressKeyOnTextBlock(
-    currentTextBlockId: string,
+    currentTextBlock: TextBlock,
     event: KeyboardEvent<HTMLDivElement>
   ) {
+    // @ts-ignore
+    currentTextBlock.content = event.target.textContent;
     this.eventKey = event.key;
 
     // find the current index
     const currentIndex = this.state.pageBlock.contentBlockIds.indexOf(
-      currentTextBlockId
+      currentTextBlock.id
     );
 
     if (this.eventKey === "Enter") {
@@ -92,6 +94,9 @@ class PageView extends React.Component<
           focusedTextBlock,
         });
       }
+    } else if (event.metaKey && this.eventKey === "s") {
+      event.preventDefault();
+      currentTextBlock.save();
     }
   }
 
@@ -103,7 +108,7 @@ class PageView extends React.Component<
         this.eventKey === "ArrowUp" ||
         this.eventKey === "ArrowDown")
     ) {
-      this.focusedContentBlockJsxElementRef.current.focus();
+      this.focusedContentBlockJsxElementRef.current.focusThisTextBlock();
       this.eventKey = "";
     }
   }

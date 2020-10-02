@@ -8,6 +8,12 @@ class TextBlock extends ContentBlock implements TextBlockInterface {
   public constructor() {
     super();
   }
+
+  public save(): void {
+    // dispatch data to server
+    throw new Error("Method not implemented.");
+    // server manage database
+  }
 }
 
 export default TextBlock;

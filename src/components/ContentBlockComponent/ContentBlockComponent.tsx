@@ -8,7 +8,7 @@ interface ContentBlockComponentProps {
   contentBlock: ContentBlock;
 
   pressKeyOnTextBlock(
-    currentTextBlockId: string,
+    currentTextBlock: TextBlock,
     event: KeyboardEvent<HTMLDivElement>
   ): void;
   handleFocusBlur(): void;
@@ -46,7 +46,10 @@ class ContentBlockComponent extends React.Component<
           this.props.handleFocusBlur();
         }}
         onKeyDown={(event) => {
-          this.props.pressKeyOnTextBlock(this.props.contentBlock.id, event);
+          this.props.pressKeyOnTextBlock(
+            this.props.contentBlock as TextBlock,
+            event
+          );
         }}
         ref={this.textBlockJsxElementRef}
       ></div>
@@ -55,7 +58,7 @@ class ContentBlockComponent extends React.Component<
     return textBlockJsxElement;
   }
 
-  focus() {
+  focusThisTextBlock() {
     if (this.textBlockJsxElementRef.current) {
       this.textBlockJsxElementRef.current.focus();
     }

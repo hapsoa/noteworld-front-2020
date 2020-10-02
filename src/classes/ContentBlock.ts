@@ -9,6 +9,10 @@ abstract class ContentBlock implements ContentBlockInterface {
     this.id = uuidv4();
   }
 
+  /**
+   * save the content
+   */
+  public abstract save(): void;
   delete(): void {
     throw new Error("Method not implemented.");
   }
