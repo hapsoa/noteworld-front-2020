@@ -10,7 +10,7 @@ import TextBlock from "../../classes/TextBlock";
 interface ContentBlockElementProps {
   contentBlock: ContentBlock;
 
-  enterTextBlock(
+  pressKeyOnTextBlock(
     currentTextBlockId: string,
     event: KeyboardEvent<HTMLDivElement>
   ): void;
@@ -46,8 +46,8 @@ class ContentBlockJsxElement extends React.Component<ContentBlockElementProps> {
           (this.props.contentBlock as TextBlock).isFocus = false;
           this.props.handleFocusBlur();
         }}
-        onKeyPress={(event) => {
-          this.props.enterTextBlock(this.props.contentBlock.id, event);
+        onKeyDown={(event) => {
+          this.props.pressKeyOnTextBlock(this.props.contentBlock.id, event);
         }}
         ref={this.textBlockJsxElementRef}
       ></div>
@@ -67,10 +67,10 @@ class PageView extends React.Component<
   {},
   {
     pageBlock: PageBlock;
-    newTextBlock: TextBlock;
+    focusedTextBlock: TextBlock | null;
   }
 > {
-  private newContentBlockJsxElementRef: React.RefObject<
+  private focusedContentBlockJsxElementRef: React.RefObject<
     ContentBlockJsxElement
   > = React.createRef<ContentBlockJsxElement>();
   private eventKey: string = "";
@@ -82,27 +82,27 @@ class PageView extends React.Component<
 
     this.state = {
       pageBlock,
-      // contentBlockJsxElements,
-      newTextBlock: pageBlock.getContentBlocks()[0] as TextBlock,
+      focusedTextBlock: null,
     };
 
-    this.enterTextBlock = this.enterTextBlock.bind(this);
+    this.pressKeyOnTextBlock = this.pressKeyOnTextBlock.bind(this);
     this.handleFocusBlur = this.handleFocusBlur.bind(this);
   }
 
-  enterTextBlock(
+  pressKeyOnTextBlock(
     currentTextBlockId: string,
     event: KeyboardEvent<HTMLDivElement>
   ) {
     this.eventKey = event.key;
-    if (event.key === "Enter") {
+
+    // find the current index
+    const currentIndex = this.state.pageBlock.contentBlockIds.indexOf(
+      currentTextBlockId
+    );
+
+    if (this.eventKey === "Enter") {
       // dont' apply enter at the current TextBlock.
       event.preventDefault();
-
-      // find the current index
-      const currentIndex = this.state.pageBlock.contentBlockIds.indexOf(
-        currentTextBlockId
-      );
 
       // make new TextBlock
       const newTextBlock = new TextBlock();
@@ -118,17 +118,48 @@ class PageView extends React.Component<
       // update state
       this.setState({
         pageBlock: this.state.pageBlock,
-        newTextBlock,
+        focusedTextBlock: newTextBlock,
       });
+    } else if (this.eventKey === "ArrowUp") {
+      console.log("ArrowUP", this.state.pageBlock.getContentBlocks());
+      this.setState({
+        pageBlock: this.state.pageBlock,
+      });
+      // move focus to previous TextBlock
+      if (currentIndex > 0) {
+        const focusedTextBlock = this.state.pageBlock.getContentBlocks()[
+          currentIndex - 1
+        ] as TextBlock;
+        this.setState({
+          focusedTextBlock,
+        });
+      }
+    } else if (this.eventKey === "ArrowDown") {
+      console.log("ArrowDown", this.state.pageBlock.getContentBlocks());
+      this.setState({
+        pageBlock: this.state.pageBlock,
+      });
+      // move focus to next TextBlock
+      if (currentIndex < this.state.pageBlock.getContentBlocks().length - 1) {
+        const focusedTextBlock = this.state.pageBlock.getContentBlocks()[
+          currentIndex + 1
+        ] as TextBlock;
+        this.setState({
+          focusedTextBlock,
+        });
+      }
     }
   }
 
   componentDidUpdate() {
+    console.log("componentDidUpdate()");
     if (
-      this.newContentBlockJsxElementRef.current &&
-      this.eventKey === "Enter"
+      this.focusedContentBlockJsxElementRef.current &&
+      (this.eventKey === "Enter" ||
+        this.eventKey === "ArrowUp" ||
+        this.eventKey === "ArrowDown")
     ) {
-      this.newContentBlockJsxElementRef.current.focus();
+      this.focusedContentBlockJsxElementRef.current.focus();
       this.eventKey = "";
     }
   }
@@ -142,14 +173,19 @@ class PageView extends React.Component<
     const contentBlockElementList = _.map(contentBlocks, (contentBlock) => (
       <ContentBlockJsxElement
         contentBlock={contentBlock}
-        enterTextBlock={this.enterTextBlock}
+        pressKeyOnTextBlock={this.pressKeyOnTextBlock}
         handleFocusBlur={this.handleFocusBlur}
         key={contentBlock.id}
-        ref={
-          this.state.newTextBlock.id === contentBlock.id
-            ? this.newContentBlockJsxElementRef
-            : null
-        }
+        ref={(() => {
+          if (
+            this.state.focusedTextBlock &&
+            this.state.focusedTextBlock.id === contentBlock.id
+          ) {
+            return this.focusedContentBlockJsxElementRef;
+          } else {
+            return null;
+          }
+        })()}
       />
     ));
 
