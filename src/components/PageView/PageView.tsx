@@ -1,67 +1,11 @@
 /* eslint-disable no-unused-vars */
-import React, { KeyboardEvent, ReactElement } from "react";
+import React, { KeyboardEvent } from "react";
 import "./PageView.scss";
 import { HiOutlineDocument } from "react-icons/hi";
 import PageBlock from "../../classes/PageBlock";
 import _ from "lodash";
-import ContentBlock from "../../classes/ContentBlock";
 import TextBlock from "../../classes/TextBlock";
-
-interface ContentBlockElementProps {
-  contentBlock: ContentBlock;
-
-  pressKeyOnTextBlock(
-    currentTextBlockId: string,
-    event: KeyboardEvent<HTMLDivElement>
-  ): void;
-  handleFocusBlur(): void;
-}
-
-class ContentBlockJsxElement extends React.Component<ContentBlockElementProps> {
-  private textBlockJsxElementRef: React.RefObject<HTMLDivElement>;
-
-  constructor(props: ContentBlockElementProps) {
-    super(props);
-    this.state = {};
-    this.textBlockJsxElementRef = React.createRef();
-  }
-
-  render() {
-    const textBlockJsxElement = (
-      <div
-        contentEditable={true}
-        className="text-component"
-        style={{ flex: 2, border: "none" }}
-        placeholder={
-          (this.props.contentBlock as TextBlock).isFocus
-            ? "Type '/' for commands"
-            : ""
-        }
-        key={this.props.contentBlock.id}
-        onFocus={() => {
-          (this.props.contentBlock as TextBlock).isFocus = true;
-          this.props.handleFocusBlur();
-        }}
-        onBlur={() => {
-          (this.props.contentBlock as TextBlock).isFocus = false;
-          this.props.handleFocusBlur();
-        }}
-        onKeyDown={(event) => {
-          this.props.pressKeyOnTextBlock(this.props.contentBlock.id, event);
-        }}
-        ref={this.textBlockJsxElementRef}
-      ></div>
-    );
-
-    return textBlockJsxElement;
-  }
-
-  focus() {
-    if (this.textBlockJsxElementRef.current) {
-      this.textBlockJsxElementRef.current.focus();
-    }
-  }
-}
+import ContentBlockComponent from "../ContentBlockComponent/ContentBlockComponent";
 
 class PageView extends React.Component<
   {},
@@ -71,8 +15,8 @@ class PageView extends React.Component<
   }
 > {
   private focusedContentBlockJsxElementRef: React.RefObject<
-    ContentBlockJsxElement
-  > = React.createRef<ContentBlockJsxElement>();
+    ContentBlockComponent
+  > = React.createRef<ContentBlockComponent>();
   private eventKey: string = "";
 
   constructor(props: {}) {
@@ -171,7 +115,7 @@ class PageView extends React.Component<
   render() {
     const contentBlocks = this.state.pageBlock.getContentBlocks();
     const contentBlockElementList = _.map(contentBlocks, (contentBlock) => (
-      <ContentBlockJsxElement
+      <ContentBlockComponent
         contentBlock={contentBlock}
         pressKeyOnTextBlock={this.pressKeyOnTextBlock}
         handleFocusBlur={this.handleFocusBlur}
